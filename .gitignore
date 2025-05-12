@@ -1,3 +1,7 @@
 
 # Ignore Firebase service account credentials
 **/*smarttrip-*-firebase-adminsdk-*.json
+
+# Ignore Firebase service account credentials
+**/smarttrip-*-firebase-adminsdk-*.json
+*.json
