@@ -5,6 +5,7 @@ import com.SmarTrip.smarTrip_backend.Security.AuthenticationResponse;
 import com.SmarTrip.smarTrip_backend.Security.RegisterRequest;
 import com.SmarTrip.smarTrip_backend.Service.AuthService;
 import com.SmarTrip.smarTrip_backend.Service.CloudinaryService; // New import
+// Removed FirebaseService import
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType; // Add this import
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+// Removed ExecutionException import
 
 @RestController
 @RequestMapping("/api/auth")
@@ -21,7 +23,8 @@ import java.util.Map;
 public class AuthController {
 
     private final AuthService authService;
-    private final CloudinaryService cloudinaryService; // Inject the CloudinaryService
+    private final CloudinaryService cloudinaryService;
+    // Removed FirebaseService field
 
     @GetMapping("/test-endpoint")
     public String test() {
@@ -76,6 +79,8 @@ public class AuthController {
 
             AuthenticationResponse response = authService.authenticate(modelRequest);
             System.out.println("Authentication successful for user: " + request.getEmail());
+            
+            // Removed Firebase authentication storage
             
             return ResponseEntity.ok(response);
         } catch (Exception e) {
@@ -134,4 +139,6 @@ public class AuthController {
         System.out.println("Simple test endpoint accessed");
         return ResponseEntity.ok("Simple test endpoint works!");
     }
+
+    // Removed Firebase user endpoint
 }

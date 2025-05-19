@@ -23,8 +23,9 @@ public class JwtAuthenticationServletFilter extends OncePerRequestFilter {
     
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        // Skip all requests for testing
-        return true; // This will bypass the filter for all requests
+        String path = request.getRequestURI();
+        // Only skip authentication for public endpoints
+        return path.startsWith("/api/auth") || path.startsWith("/api/files") || path.startsWith("/api/users") || path.startsWith("/");
     }
     
     @Override
