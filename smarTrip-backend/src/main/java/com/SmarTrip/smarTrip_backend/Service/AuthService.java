@@ -13,6 +13,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,6 +25,61 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+
+    // Helper method to check if admin exists
+    public boolean isAdminExists() {
+        return userRepository.existsByEmail("admin@example.com");
+    }
+
+    // Helper method to create admin account
+    private User createAdminAccount(String email, String password, String firstName, String lastName, LocalDate birthday) {
+        if (!isAdminExists()) {
+            User admin = User.builder()
+                .email(email)
+                .password(passwordEncoder.encode(password))
+                .firstName(firstName)
+                .lastName(lastName)
+                .birthday(birthday)
+                .role(Role.ADMIN)
+                .build();
+            return userRepository.save(admin);
+        }
+        return null;
+    }
+
+    // Create admin account programmatically
+    public User createAdminAccountProgrammatically(String email, String password, String firstName, String lastName, LocalDate birthday) {
+        if (createAdminAccount(email, password, firstName, lastName, birthday) != null) {
+            return createAdminAccount(email, password, firstName, lastName, birthday);
+        } else {
+            throw new RuntimeException("Admin account already exists");
+        }
+    }
+
+    // Create admin account through endpoint
+    public User createAdminThroughEndpoint(String email, String password, String firstName, String lastName, LocalDate birthday) {
+        // Allow both admin@example.com and the user's email
+        if (!"admin@example.com".equals(email) && !"chkirseif@gmail.com".equals(email)) {
+            throw new RuntimeException("Invalid admin email");
+        }
+
+        // Check if user already exists
+        if (userRepository.existsByEmail(email)) {
+            throw new RuntimeException("Admin with this email already exists");
+        }
+
+        // Create a new admin user
+        User admin = User.builder()
+            .email(email)
+            .password(passwordEncoder.encode(password))
+            .firstName(firstName)
+            .lastName(lastName)
+            .birthday(birthday)
+            .role(Role.ADMIN)
+            .build();
+        
+        return userRepository.save(admin);
+    }
 
     // In the register method
     public AuthenticationResponse register(RegisterRequest request) {
@@ -39,7 +95,8 @@ public class AuthService {
                 .lastName(request.getLastName())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .photoUrl(request.getPhotoUrl()) // Add this line
+                .photoUrl(request.getPhotoUrl())
+                .birthday(request.getBirthday())
                 .role(Role.USER)
                 .build();
     
@@ -105,6 +162,7 @@ public class AuthService {
             userDetails.put("lastName", user.getLastName());
             userDetails.put("email", user.getEmail());
             userDetails.put("photoUrl", user.getPhotoUrl());
+            userDetails.put("role", user.getRole().name());
             
             return userDetails;
         }

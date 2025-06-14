@@ -1,10 +1,12 @@
 package com.SmarTrip.smarTrip_backend.Controller;
 
 import com.SmarTrip.smarTrip_backend.Model.AuthenticationRequest;
+import com.SmarTrip.smarTrip_backend.Model.User;
 import com.SmarTrip.smarTrip_backend.Security.AuthenticationResponse;
 import com.SmarTrip.smarTrip_backend.Security.RegisterRequest;
 import com.SmarTrip.smarTrip_backend.Service.AuthService;
 import com.SmarTrip.smarTrip_backend.Service.CloudinaryService; // New import
+import com.SmarTrip.smarTrip_backend.Security.AdminRequest;
 // Removed FirebaseService import
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType; // Add this import
@@ -24,7 +26,6 @@ public class AuthController {
 
     private final AuthService authService;
     private final CloudinaryService cloudinaryService;
-    // Removed FirebaseService field
 
     @GetMapping("/test-endpoint")
     public String test() {
@@ -37,6 +38,26 @@ public class AuthController {
             return ResponseEntity.ok(authService.register(request));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PostMapping("/admin/create")
+    public ResponseEntity<?> createAdmin(@RequestBody AdminRequest request) {
+        try {
+            User admin = authService.createAdminThroughEndpoint(
+                request.getEmail(),
+                request.getPassword(),
+                request.getFirstName(),
+                request.getLastName(),
+                request.getBirthday()
+            );
+            return ResponseEntity.ok(Map.of(
+                "message", "Admin account created successfully",
+                "admin", admin
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(500)
+                .body(Map.of("error", e.getMessage()));
         }
     }
 

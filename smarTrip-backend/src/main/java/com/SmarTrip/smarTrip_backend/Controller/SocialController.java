@@ -103,6 +103,35 @@ public class SocialController {
         }
     }
     
+    @GetMapping("/user/posts")
+    public ResponseEntity<?> getUserPosts() {
+        try {
+            String userId = getCurrentUserId();
+            Map<String, Object> userPosts = firebaseService.getDocumentsWhere("posts", "userId", userId);
+            
+            return ResponseEntity.ok(userPosts);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of(
+                "error", "Failed to retrieve user posts",
+                "message", e.getMessage()
+            ));
+        }
+    }
+    
+    @GetMapping("/users/{userId}/posts")
+    public ResponseEntity<?> getPostsByUserId(@PathVariable String userId) {
+        try {
+            Map<String, Object> userPosts = firebaseService.getDocumentsWhere("posts", "userId", userId);
+            
+            return ResponseEntity.ok(userPosts);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of(
+                "error", "Failed to retrieve posts for user",
+                "message", e.getMessage()
+            ));
+        }
+    }
+    
     @GetMapping("/posts/{postId}")
     public ResponseEntity<?> getPost(@PathVariable String postId) {
         try {
@@ -331,9 +360,15 @@ public class SocialController {
         }
     }
     
-    // Helper methods for user authentication (replace with your actual implementation)
+    // Helper methods for user authentication
     private String getCurrentUserId() {
-        // For testing purposes - use a fixed ID instead of timestamp
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            // This assumes your authentication principal contains the user ID
+            // Adjust based on your actual authentication implementation
+            return authentication.getName();
+        }
+        // Fallback for testing or when not authenticated
         return "test-user-123";
     }
     

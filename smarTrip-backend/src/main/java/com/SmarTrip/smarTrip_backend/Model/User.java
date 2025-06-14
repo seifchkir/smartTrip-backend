@@ -8,8 +8,12 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.Collection;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Data
 @Builder
@@ -27,11 +31,20 @@ public class User implements UserDetails {
     @Indexed(unique = true)
     private String email;
     private String password;
-    private String photoUrl; // Add this field
+    private String photoUrl;
     
     private Role role;
 
     private String token;
+    
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    private LocalDate birthday;
+    
+    // Method to calculate age
+    public int calculateAge() {
+        if (birthday == null) return 0;
+        return Period.between(birthday, LocalDate.now()).getYears();
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
